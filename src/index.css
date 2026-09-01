@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-purple: #0284c7;
+  --color-brand-purpleLight: #e0f2fe;
+  --color-brand-lavender: #f0f9ff;
+  --color-brand-navy: #0f2942;
+  --color-brand-grayText: #526b82;
+  --color-brand-green: #2d9e6b;
+  --color-brand-greenBg: #e6f6ef;
+  --color-brand-orange: #e58d19;
+  --color-brand-orangeBg: #fef4e6;
+  --color-brand-red: #d94e4e;
+  --color-brand-redBg: #fdf0f0;
+  --color-brand-blue: #0ea5e9;
+}
+
+body {
+  background-color: var(--color-brand-lavender);
+  color: var(--color-brand-navy);
+  min-height: 100vh;
+  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: font-size 0.2s ease, background-color 0.2s ease;
+}
+
+/* Accessibility text scaling classes */
+.text-scale-normal {
+  font-size: 16px;
+}
+.text-scale-normal h1 { font-size: 1.875rem; } /* 30px */
+.text-scale-normal h2 { font-size: 1.5rem; }    /* 24px */
+.text-scale-normal h3 { font-size: 1.25rem; }   /* 20px */
+.text-scale-normal p, .text-scale-normal span, .text-scale-normal button { font-size: 1rem; } /* 16px */
+
+.text-scale-large {
+  font-size: 20px;
+}
+.text-scale-large h1 { font-size: 2.25rem; }    /* 36px */
+.text-scale-large h2 { font-size: 1.875rem; }   /* 30px */
+.text-scale-large h3 { font-size: 1.5rem; }     /* 24px */
+.text-scale-large p, .text-scale-large span, .text-scale-large button { font-size: 1.25rem; } /* 20px */
+
+.text-scale-xlarge {
+  font-size: 24px;
+}
+.text-scale-xlarge h1 { font-size: 2.75rem; }    /* 44px */
+.text-scale-xlarge h2 { font-size: 2.25rem; }    /* 36px */
+.text-scale-xlarge h3 { font-size: 1.875rem; }   /* 30px */
+.text-scale-xlarge p, .text-scale-xlarge span, .text-scale-xlarge button { font-size: 1.5rem; } /* 24px */
+
+/* High contrast accessibility themes */
+body.high-contrast-mode {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.high-contrast-mode * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+body.high-contrast-mode button,
+body.high-contrast-mode a {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+
+body.high-contrast-mode button:hover,
+body.high-contrast-mode a:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Custom Scrollbar for elderly */
+::-webkit-scrollbar {
+  width: 14px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Fix input text visibility: ensure entered text is dark navy */
+input, textarea, select {
+  color: #0f2942 !important;
+}
+
+/* Ensure placeholder text is visually distinct from entered text */
+input::placeholder, textarea::placeholder {
+  color: #64748b !important;
+}
