@@ -20,44 +20,39 @@ RUN cmake -B build && cmake --build build --config Release
 
 # Verify compiled Linux executable
 RUN if [ -f "/whisper-src/build/bin/whisper-cli" ]; then \
-        /whisper-src/build/bin/whisper-cli --help; \
+        /whisper-src/build/bin/whisper-cli --help > /dev/null; \
     elif [ -f "/whisper-src/build/bin/main" ]; then \
-        /whisper-src/build/bin/main --help; \
+        /whisper-src/build/bin/main --help > /dev/null; \
     else \
         echo "Error: Neither whisper-cli nor main executable found after build"; exit 1; \
     fi
 
 # ==============================================================================
-# STAGE 2: Node.js production runner
+# STAGE 2: Node.js application builder (installs devDependencies for compilation)
 # ==============================================================================
-FROM node:20-slim AS runner
+FROM node:20-slim AS app-builder
 
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=5000
+WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    git-lfs \
     curl \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
-
-# Copy root & backend package files for cached installation
+# Copy package files for both root and backend
 COPY package*.json ./
 COPY backend/package*.json ./backend/
 
-# Install production dependencies
+# Install ALL dependencies (including devDependencies like typescript & vite)
 RUN npm ci && npm ci --prefix backend
 
-# Copy full application source code
+# Copy full application source
 COPY . .
 
 # Copy compiled Linux whisper binary from STAGE 1
 COPY --from=whisper-builder /whisper-src/build/bin/ /app/whisper-bin/
-RUN if [ -f "/app/whisper-bin/whisper-cli" ]; then \
+RUN mkdir -p /app/backend/models/whisper && \
+    if [ -f "/app/whisper-bin/whisper-cli" ]; then \
         cp /app/whisper-bin/whisper-cli /app/backend/models/whisper/whisper-cli; \
     elif [ -f "/app/whisper-bin/main" ]; then \
         cp /app/whisper-bin/main /app/backend/models/whisper/whisper-cli; \
@@ -65,7 +60,7 @@ RUN if [ -f "/app/whisper-bin/whisper-cli" ]; then \
     chmod +x /app/backend/models/whisper/whisper-cli && \
     rm -rf /app/whisper-bin
 
-# Verify Git LFS ggml-tiny.bin model size inside container
+# Verify Git LFS ggml-tiny.bin model size inside builder
 RUN MODEL_PATH="/app/backend/models/whisper/ggml-tiny.bin" && \
     if [ -f "$MODEL_PATH" ]; then \
         FILE_SIZE=$(wc -c < "$MODEL_PATH"); \
@@ -80,12 +75,34 @@ RUN MODEL_PATH="/app/backend/models/whisper/ggml-tiny.bin" && \
         curl -L -o "$MODEL_PATH" "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin"; \
     fi
 
-# Build React frontend & Express backend
+# Build React frontend & Express backend (tsc and vite are available!)
 RUN npm run build
 
-# Verify Linux Whisper binary loads ggml-tiny.bin
-RUN /app/backend/models/whisper/whisper-cli --help > /dev/null && \
-    echo "[Docker Build] Linux whisper-cli verified executable."
+# ==============================================================================
+# STAGE 3: Minimal production runner
+# ==============================================================================
+FROM node:20-slim AS runner
+
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=5000
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY backend/package*.json ./backend/
+
+# Install production dependencies only
+RUN npm ci --omit=dev && npm ci --prefix backend --omit=dev
+
+# Copy compiled build artifacts from STAGE 2
+COPY --from=app-builder /app/dist ./dist
+COPY --from=app-builder /app/backend/dist ./backend/dist
+COPY --from=app-builder /app/backend/models ./backend/models
+
+# Ensure Linux whisper executable is executable in final image
+RUN chmod +x /app/backend/models/whisper/whisper-cli
 
 EXPOSE 5000
 
