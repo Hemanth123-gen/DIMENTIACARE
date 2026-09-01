@@ -3,7 +3,14 @@ export type ConnectionStatus = 'connected' | 'local';
 let connectionStatus: ConnectionStatus = 'local';
 let statusListeners: ((status: ConnectionStatus) => void)[] = [];
 
-const BASE_URL = 'http://localhost:5000/api';
+const getBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return 'http://localhost:5000/api';
+  const trimmed = envUrl.trim().replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+};
+
+const BASE_URL = getBaseUrl();
 
 export const apiClient = {
   // Get current connection state

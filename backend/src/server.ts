@@ -1,4 +1,4 @@
-﻿import http from 'http';
+import http from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import app from './app';
 import dotenv from 'dotenv';
@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-const HOST = '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Create HTTP server from Express app
 const server = http.createServer(app);

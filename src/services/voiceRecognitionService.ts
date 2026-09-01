@@ -297,9 +297,14 @@ export class VoiceRecognitionService {
             const whisperLang = whisperLangMap[this.currentLang] || 'en';
 
             console.log('[VOICE] Sending audio for transcription');
-            console.log('[VOICE] Waiting for STT result');
+            const apiBaseUrl = (() => {
+              const envUrl = import.meta.env.VITE_API_URL;
+              if (!envUrl) return 'http://localhost:5000/api';
+              const trimmed = envUrl.trim().replace(/\/+$/, '');
+              return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+            })();
 
-            const response = await fetch('http://localhost:5000/api/voice/transcribe', {
+            const response = await fetch(`${apiBaseUrl}/voice/transcribe`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ audio: base64Data, language: whisperLang })
