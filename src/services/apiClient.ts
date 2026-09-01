@@ -5,9 +5,19 @@ let statusListeners: ((status: ConnectionStatus) => void)[] = [];
 
 const getBaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl) return 'http://localhost:5000/api';
-  const trimmed = envUrl.trim().replace(/\/+$/, '');
-  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  if (envUrl && envUrl.trim().length > 0) {
+    const trimmed = envUrl.trim().replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (window.location.port === '5173') {
+        return 'http://localhost:5000/api';
+      }
+    }
+    return `${window.location.origin}/api`;
+  }
+  return 'http://localhost:5000/api';
 };
 
 const BASE_URL = getBaseUrl();

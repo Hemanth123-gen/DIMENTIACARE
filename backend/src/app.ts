@@ -49,4 +49,16 @@ app.use((req, res, next) => {
 // Central Error Handler
 app.use(errorHandler);
 
+// Serve static frontend dist in production if dist directory exists
+import path from 'path';
+import fs from 'fs';
+const distPath = path.resolve(process.cwd(), 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 export default app;

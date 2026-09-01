@@ -3,22 +3,33 @@ import path from 'path';
 import fs from 'fs';
 
 const getWhisperDir = (): string => {
-  // Try 1: process.cwd()/models/whisper
   let dir = path.resolve(process.cwd(), 'models', 'whisper');
-  if (fs.existsSync(path.join(dir, 'whisper-cli.exe')) || fs.existsSync(path.join(dir, 'main.exe'))) {
+  if (
+    fs.existsSync(path.join(dir, 'whisper-cli.exe')) ||
+    fs.existsSync(path.join(dir, 'whisper-cli')) ||
+    fs.existsSync(path.join(dir, 'main.exe')) ||
+    fs.existsSync(path.join(dir, 'main'))
+  ) {
     return dir;
   }
-  // Try 2: process.cwd()/backend/models/whisper
   dir = path.resolve(process.cwd(), 'backend', 'models', 'whisper');
-  if (fs.existsSync(path.join(dir, 'whisper-cli.exe')) || fs.existsSync(path.join(dir, 'main.exe'))) {
+  if (
+    fs.existsSync(path.join(dir, 'whisper-cli.exe')) ||
+    fs.existsSync(path.join(dir, 'whisper-cli')) ||
+    fs.existsSync(path.join(dir, 'main.exe')) ||
+    fs.existsSync(path.join(dir, 'main'))
+  ) {
     return dir;
   }
-  // Try 3: relative to this file's __dirname
   dir = path.resolve(__dirname, '..', '..', 'models', 'whisper');
-  if (fs.existsSync(path.join(dir, 'whisper-cli.exe')) || fs.existsSync(path.join(dir, 'main.exe'))) {
+  if (
+    fs.existsSync(path.join(dir, 'whisper-cli.exe')) ||
+    fs.existsSync(path.join(dir, 'whisper-cli')) ||
+    fs.existsSync(path.join(dir, 'main.exe')) ||
+    fs.existsSync(path.join(dir, 'main'))
+  ) {
     return dir;
   }
-  // Fallback to default
   return path.resolve(process.cwd(), 'backend', 'models', 'whisper');
 };
 

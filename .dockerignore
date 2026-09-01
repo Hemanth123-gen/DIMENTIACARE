@@ -1,0 +1,12 @@
+node_modules
+backend/node_modules
+dist
+backend/dist
+logs
+*.log
+.env
+.env.production
+.git
+cloudflared.exe
+temp
+scratch
